@@ -1,0 +1,50 @@
+name: Cloud CI & Monitoring Pipeline
+
+# Trigger the pipeline automatically on every push event to the main branch
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    # Use a fresh, hosted Ubuntu environment as our ephemeral builder node
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Securely pull down the repository code onto our runner workspace
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+
+      # Step 2: Initialize an isolated Python runtime container environment
+      - name: Set up Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # Step 3: Cache and Install Project Dependencies 
+      - name: Install Pip Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Step 4: Code Quality Check (Linting) - Best practice layer before running code
+      - name: Lint Code with Flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      # Step 5: Execute Automated Unit Testing Suite
+      - name: Run Test Automation Suite
+        run: |
+          pytest
+
+      # Step 6: DevOps Observability Logs (Enhancement Step)
+      - name: Execution Monitoring Evidence
+        run: |
+          echo "=================================================="
+          echo "BUILD TIMESTAMP: $(date)"
+          echo "PIPELINE ID: ${GITHUB_RUN_ID}"
+          echo "CI Pipeline validated and executed successfully!"
+          echo "=================================================="
