@@ -48,3 +48,6 @@ jobs:
           echo "PIPELINE ID: ${GITHUB_RUN_ID}"
           echo "CI Pipeline validated and executed successfully!"
           echo "=================================================="
+      
+      - name: Print Python Version
+        run: python --version
